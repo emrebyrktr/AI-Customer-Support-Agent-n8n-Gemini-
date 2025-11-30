@@ -44,9 +44,13 @@ This system analyzes incoming emails via Gmail, detects sentiment and urgency, a
 
 ## 📸 Screenshots
 
-| Telegram Emergency Alert | AI-Generated HTML Response |
+| Telegram Emergency Alert |
+
 | <img width="1306" height="934" alt="telegrambot" src="https://github.com/user-attachments/assets/87c9848d-a132-46f5-9af2-2756a3988aa3" />
-|  <img width="1563" height="562" alt="mailn8n" src="https://github.com/user-attachments/assets/35861ffc-da3b-4a4d-9c97-fd4d9bb546ff" />
+
+| AI-Generated HTML Response |
+
+| <img width="1563" height="562" alt="mailn8n" src="https://github.com/user-attachments/assets/35861ffc-da3b-4a4d-9c97-fd4d9bb546ff" />
 |
 | ![Telegram](YOUR_TELEGRAM_IMAGE_LINK.png) | ![Gmail](YOUR_GMAIL_IMAGE_LINK.png) |
 
