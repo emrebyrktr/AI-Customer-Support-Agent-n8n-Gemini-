@@ -45,13 +45,9 @@ This system analyzes incoming emails via Gmail, detects sentiment and urgency, a
 
 ## 📸 Screenshots
 
-| Telegram Emergency Alert |
-
-| <img width="1306" height="934" alt="telegrambot" src="https://github.com/user-attachments/assets/87c9848d-a132-46f5-9af2-2756a3988aa3" />
-
-| AI-Generated HTML Response |
-
-| <img width="1563" height="562" alt="mailn8n" src="https://github.com/user-attachments/assets/35861ffc-da3b-4a4d-9c97-fd4d9bb546ff" />
+| Telegram Emergency Alert | AI-Generated HTML Response |
+| :---: | :---: |
+| ![Telegram](telegrambot.png) | ![Gmail](n8nmail.png) |
 
 
 *> **Note:** The bot in the screenshots is configured to respond in **Turkish**, but the system workflow and prompts are language-agnostic and can be adapted to any language.*
