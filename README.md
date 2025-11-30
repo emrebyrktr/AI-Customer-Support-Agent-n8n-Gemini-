@@ -4,8 +4,8 @@ An autonomous, end-to-end **Customer Support Agent** built with **n8n** workflow
 
 This system analyzes incoming emails via Gmail, detects sentiment and urgency, and creates autonomous responses based on defined **Company Policies (RAG)** or triggers emergency alerts via **Telegram** for high-risk situations.
 
-![Project Architecture](<img width="1181" height="424" alt="n8nmap" src="https://github.com/user-attachments/assets/5d660c7f-a200-46f2-832c-b0c941fa4c8b" />
-)
+![Project Architecture]<img width="1181" height="424" alt="n8nmap" src="https://github.com/user-attachments/assets/5d660c7f-a200-46f2-832c-b0c941fa4c8b" />
+
 
 ## 🚀 Key Features
 
