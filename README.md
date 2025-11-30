@@ -4,7 +4,7 @@ An autonomous, end-to-end **Customer Support Agent** built with **n8n** workflow
 
 This system analyzes incoming emails via Gmail, detects sentiment and urgency, and creates autonomous responses based on defined **Company Policies (RAG)** or triggers emergency alerts via **Telegram** for high-risk situations.
 
-![Proje Mimarisi](https://github.com/emrebyrktr/proje/assets/n8nmap.png)
+![Proje Mimarisi](n8nmap.png)
 
 
 ## 🚀 Key Features
