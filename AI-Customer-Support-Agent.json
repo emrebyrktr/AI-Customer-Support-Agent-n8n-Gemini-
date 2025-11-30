@@ -1,0 +1,320 @@
+{
+  "name": "AI Support Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "labelIds": [
+            "INBOX",
+            "UNREAD"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -192,
+        32
+      ],
+      "id": "011cc989-d162-4b85-8491-731207372fc7",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "SNZs8guMoYVGLzfc",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Gelen müşteri e-postasını analiz et ve sınıflandır.\n\nE-posta Bilgileri:\n- Kimden: {{ $json.From }}\n- Konu: {{ $json.Subject }}\n- İçerik Özeti: {{ $json.snippet }}\n\nGörevler:\n1. Konuyu şu kategorilerden birine ata: [Teknik Destek, Fatura, İade, Satış, Sistem/Uyarı, Diğer].\n2. Müşterinin duygu durumunu belirle (Kızgın, Nötr, Mutlu).\n3. Aciliyet seviyesini belirle (Yüksek, Orta, Düşük).\n\nÇıktıyı SADECE aşağıdaki JSON formatında ver (başka hiçbir metin ekleme):\n{\n  \"category\": \"Kategori İsmi\",\n  \"sentiment\": \"Duygu Durumu\",\n  \"urgency\": \"Aciliyet\",\n  \"reasoning\": \"Neden bu kararı verdiğinin kısa açıklaması\"\n}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        176,
+        16
+      ],
+      "id": "8005bf8a-c42d-482c-9777-b22c110c6e6e",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mt5QNNfYc8i1Ghj9",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// AI'dan gelen yanıtı alıyoruz\nconst aiResponse = $input.item.json.content.parts[0].text;\nconst cleanJson = aiResponse.replace(/```json/g, \"\").replace(/```/g, \"\").trim();\nconst parsedData = JSON.parse(cleanJson);\n\n// Gmail'den gelen orijinal verileri de (Subject, From vb.) bu pakete ekliyoruz\n// Not: Gmail verisi bir önceki node'un \"json\" kısmında duruyor olabilir\n// Ancak en garantisi yukarıdaki \"Nodes\" menüsünden seçmektir.\n// Şimdilik sadece sürükle-bırak yöntemini (yukarıdaki 1-5 adımları) dene, en temizi odur.\n\nreturn parsedData;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        16
+      ],
+      "id": "aaaffe58-86ce-4201-8438-cebd73cb5481",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5c6333fc-ea91-4317-af77-4ac7ea9543df",
+              "leftValue": "={{ $json.urgency }}",
+              "rightValue": "Yüksek",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        16
+      ],
+      "id": "d50c5cbb-3a33-4947-89b6-2cced19a0e08",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Sen \"TechNova\" teknoloji mağazasının profesyonel Müşteri Destek Asistanısın.\nAşağıdaki \"Şirket Bilgi Bankası\"nı temel alarak müşteriye yanıt ver. Bilgi bankasında cevabı olmayan sorular için \"Bu konuda yetkili birime bilgi verdim, size dönecekler\" de, asla uydurma yapma.\n\n=== ŞİRKET BİLGİ BANKASI ===\n1. İade Politikası: Ürünler, kutusu açılmamışsa 14 gün içinde koşulsuz iade edilebilir. Açılmış ürünlerde sadece teknik arıza varsa iade alınır. Kargo ücreti bize aittir.\n2. Kargo Süreci: Siparişler 24 saat içinde kargoya verilir. Yurtiçi Kargo ile çalışıyoruz. 1000 TL üzeri siparişlerde kargo ücretsizdir.\n3. Çalışma Saatleri: Destek ekibimiz hafta içi 09:00 - 18:00 arası çalışır.\n4. İletişim: Sorun devam ederse destek@technova.com adresinden bize ulaşabilirler.\n==============================\n\nGelen E-posta Özeti: \"{{ $('Gmail Trigger').item.json.snippet }}\"\nKonu: \"{{ $('Gmail Trigger').item.json.Subject }}\"\n\nAnaliz Sonuçları:\n- Kategori: {{ $('Code in JavaScript').item.json.category }}\n- Müşteri Duygusu: {{ $('Code in JavaScript').item.json.sentiment }}\nYANIT KURALLARI:\n1. Müşteri 'Kızgın' ise: Çok nazik, alttan alan ve çözüm odaklı bir dil kullan.\n2. Müşteri 'Nötr' ise: Profesyonel, kısa ve net ol.\n3. Yanıtı Türkçe yaz.\n4. Sadece e-posta gövdesini (body) ver, konu başlığı yazma.\n5. İmza olarak \"TechNova Destek Ekibi\" kullan.\n6. Yanıtı **HTML formatında** hazırla.\n7. Paragraflar için <p> etiketi kullan.\n8. Önemli yerleri (örneğin 'teknik arıza', '14 gün') vurgulamak için <b> etiketi ile kalınlaştır.\n9. Maddeler halinde yazman gerekirse <ul> ve <li> etiketlerini kullan.\n10. Asla ```html veya ```json gibi kod blokları içine alma, sadece saf HTML metni ver.\n11. İmza kısmını <br> etiketi ile ayır.\n...\n\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        880,
+        144
+      ],
+      "id": "462e5a2e-7642-4d00-9057-4a73acace390",
+      "name": "Message a model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mt5QNNfYc8i1Ghj9",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "1959533370",
+        "text": "=🚨 YÜKSEK ACİLİYETLİ E-POSTA 🚨\n\n📧 Kimden: {{ $('Gmail Trigger').item.json.From }}\n📌 Konu: {{ $('Gmail Trigger').item.json.Subject }}\n\n🤖 Kategori: {{ $('Code in JavaScript').item.json.category }}\n⚠️ Neden Acil?: {{ $('Code in JavaScript').item.json.reasoning }}\n\nLütfen hemen kontrol et!",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        896,
+        -112
+      ],
+      "id": "80def9e7-003f-4584-b02d-3641ed4a4a38",
+      "name": "Send a text message",
+      "webhookId": "f5efca11-16fa-412a-a1e3-3ccd05725fea",
+      "credentials": {
+        "telegramApi": {
+          "id": "7uj3zUZNE1eSEXDm",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c6805b49-86eb-402a-a8c0-d35f9d6ba71b",
+              "leftValue": "={{ $json.From }}",
+              "rightValue": "no-reply",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "3ee0e137-8764-439b-a533-465cc0599398",
+              "leftValue": "={{ $json.From }}",
+              "rightValue": "noreply",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        32
+      ],
+      "id": "41523706-c221-4689-a354-01b969e34416",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.From }}",
+        "subject": "=Re:  {{ $('Gmail Trigger').item.json.Subject }}",
+        "message": "={{ $json.content.parts[0].text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1168,
+        144
+      ],
+      "id": "7d89deae-ccab-4d54-90d7-af8d54608870",
+      "name": "Send a message",
+      "webhookId": "c71b68bc-db3c-4fb8-bff8-19f93e71172b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "SNZs8guMoYVGLzfc",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c5d41faf-8290-4c2d-82bb-e77bcec4c254",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "81997444f06e690f7f06d28d25d1248ff1e663981384b3f6c12156084d25c3e9"
+  },
+  "id": "QyG5Y4ag71mkVvNw",
+  "tags": []
+}
