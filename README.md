@@ -52,7 +52,8 @@ This system analyzes incoming emails via Gmail, detects sentiment and urgency, a
 
 | <img width="1563" height="562" alt="mailn8n" src="https://github.com/user-attachments/assets/35861ffc-da3b-4a4d-9c97-fd4d9bb546ff" />
 |
-| ![Telegram](YOUR_TELEGRAM_IMAGE_LINK.png) | ![Gmail](YOUR_GMAIL_IMAGE_LINK.png) |
+| ![Telegram](<img width="1306" height="934" alt="telegrambot" src="https://github.com/user-attachments/assets/614d8c16-ea02-4307-ae07-04f5637cec68" />
+) | ![Gmail](YOUR_GMAIL_IMAGE_LINK.png) |
 
 *> **Note:** The bot in the screenshots is configured to respond in **Turkish**, but the system workflow and prompts are language-agnostic and can be adapted to any language.*
 
